@@ -113,7 +113,12 @@ services:
       start_period: 180s
     networks:
       - app-network
-
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.davetly.net.tr`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.api.loadbalancer.server.port=8000"
   ui:
     image: ${REGISTRY:-dograhai}/dograh-ui:latest
     environment:
@@ -142,7 +147,12 @@ services:
       start_period: 30s
     networks:
       - app-network
-
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ui.rule=Host(`app.davetly.net.tr`)"
+      - "traefik.http.routers.ui.entrypoints=websecure"
+      - "traefik.http.routers.ui.tls.certresolver=letsencrypt"
+      - "traefik.http.services.ui.loadbalancer.server.port=3010"
   coturn:
     image: coturn/coturn:4.6.3
     container_name: coturn
