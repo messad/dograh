@@ -11,7 +11,7 @@ services:
         max-size: "10m"
         max-file: "3"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_fix:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 3s
@@ -171,7 +171,7 @@ services:
       ${TURN_HOST:+--external-ip=$TURN_HOST}
 
 volumes:
-  postgres_data:
+  postgres_data_fix:
   redis_data:
   minio-data:
     driver: local
