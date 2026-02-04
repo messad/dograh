@@ -113,6 +113,7 @@ services:
       start_period: 180s
     networks:
       - app-network
+      - coolify
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.davetly.net.tr`)"
@@ -148,6 +149,7 @@ services:
       start_period: 30s
     networks:
       - app-network
+      - coolify
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ui.rule=Host(`app.davetly.net.tr`)"
@@ -192,3 +194,5 @@ volumes:
 networks:
   app-network:
     driver: bridge
+  coolify:
+    external: true
