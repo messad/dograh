@@ -10,8 +10,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    ports:
-      - "5432:5432"
+    # ports: KAPATILDI (Coolify içinde gerek yok)
+    #   - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -24,8 +24,8 @@ services:
 
   redis:
     image: redis:7
-    ports:
-      - "6379:6379"
+    # ports: KAPATILDI (Host port çakışmasını önler)
+    #   - "6379:6379"
     command: >
       --requirepass redissecret
     volumes:
@@ -46,9 +46,9 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
       MINIO_API_CORS_ALLOW_ORIGIN: "*"
-    ports:
-      - "127.0.0.1:9000:9000" # Bind to localhost explicitly
-      - "127.0.0.1:9001:9001"
+    # ports: KAPATILDI
+    #   - "127.0.0.1:9000:9000"
+    #   - "127.0.0.1:9001:9001"
     volumes:
       - minio-data:/data
     healthcheck:
@@ -59,15 +59,16 @@ services:
     networks:
       - app-network
 
+  # Nginx portlarını da kapatıyoruz çünkü Coolify (Traefik) 80/443'ü yönetiyor.
   nginx:
     image: nginx:alpine
     container_name: nginx_https
     profiles: ["remote"]
     depends_on:
       - ui
-    ports:
-      - "80:80"
-      - "443:443"
+    # ports: KAPATILDI
+    #   - "80:80"
+    #   - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certs:/etc/nginx/certs:ro
@@ -79,47 +80,40 @@ services:
     volumes:
       - shared-tmp:/tmp
     environment:
-      # Core application config
-      ENVIRONMENT: "local"
+      ENVIRONMENT: "production"
       LOG_LEVEL: "INFO"
 
-      # Replace this environment variable if you are using a custom
-      # domain to host the stack
-      BACKEND_API_ENDPOINT: "http://localhost:8000"
+      # Coolify Env Var'dan gelecek domain
+      BACKEND_API_ENDPOINT: "${API_URL}"
 
-      # Database configuration (using containerized postgres)
       DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/postgres"
-
-      # Redis configuration (using containerized redis)
       REDIS_URL: "redis://:redissecret@redis:6379"
 
-      # Storage configuration - using local MinIO
       ENABLE_AWS_S3: "false"
-
-      # MinIO
       MINIO_ENDPOINT: "minio:9000"
       MINIO_ACCESS_KEY: "minioadmin"
       MINIO_SECRET_KEY: "minioadmin"
       MINIO_BUCKET: "voice-audio"
       MINIO_SECURE: "false"
 
-      # Langfuse
       ENABLE_TRACING: "false"
-      # LANGFUSE_SECRET_KEY: ""
-      # LANGFUSE_PUBLIC_KEY: ""
-      # LANGFUSE_HOST: "https://langfuse.dograh.com"
 
-      # Sentry
       ENABLE_TELEMETRY: "${ENABLE_TELEMETRY:-true}"
       SENTRY_DSN: "https://3acdb63d5f1f70430953353b82de61e0@o4509486225096704.ingest.us.sentry.io/4510152922693632"
 
-      # TURN server configuration (for WebRTC NAT traversal in remote server)
+      # Verimor Entegrasyonu İçin Gerekli IP
+      SIP_HOST: "${SIP_HOST}"
+
       TURN_HOST: "${TURN_HOST:-}"
       TURN_USERNAME: "${TURN_USERNAME:-}"
       TURN_PASSWORD: "${TURN_PASSWORD:-}"
 
     ports:
       - "8000:8000"
+      # 👇 VERIMOR / SIP Portları (DIŞARIYA AÇIK) 👇
+      - "5060:5060/udp"
+      - "5060:5060/tcp"
+      - "10000-10200:10000-10200/udp"
     depends_on:
       postgres:
         condition: service_healthy
@@ -127,8 +121,6 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-      cloudflared:
-        condition: service_started
     healthcheck:
       test:
         [
@@ -145,22 +137,12 @@ services:
   ui:
     image: ${REGISTRY:-dograhai}/dograh-ui:latest
     environment:
-      # Server-side URL (SSR, internal Docker network)
-      BACKEND_URL: "http://api:8000"
+      BACKEND_URL: "${API_URL}"
       NODE_ENV: "oss"
-
-      # Flag to enable/ disable posthog and sentry
       ENABLE_TELEMETRY: "${ENABLE_TELEMETRY:-true}"
-
-      # Posthog
       POSTHOG_KEY: "phc_ItizB1dP6yv7ZYobbcqrpxTdbomDA8hJFSEmAMdYvIr"
       POSTHOG_HOST: "https://us.posthog.com"
-
-      # Sentry
       SENTRY_DSN: "https://d9387fed5f80e90781f1dbd9b2c0994c@o4509486225096704.ingest.us.sentry.io/4510124708200448"
-
-      # TURN server configuration (for WebRTC NAT traversal in remote server)
-      # Fetched at runtime via /api/config/turn endpoint
       TURN_HOST: "${TURN_HOST:-}"
       TURN_USERNAME: "${TURN_USERNAME:-}"
       TURN_PASSWORD: "${TURN_PASSWORD:-}"
@@ -179,15 +161,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-    networks:
-      - app-network
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflared-tunnel
-    command: tunnel --no-autoupdate --url http://api:8000 --metrics 0.0.0.0:2000
-    ports:
-      - "2000:2000" # Expose metrics endpoint
     networks:
       - app-network
 
