@@ -10,7 +10,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    # Portlar kapalı (Internal)
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -23,7 +22,6 @@ services:
 
   redis:
     image: redis:7
-    # Portlar kapalı (Internal)
     command: >
       --requirepass redissecret
     volumes:
@@ -44,7 +42,6 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
       MINIO_API_CORS_ALLOW_ORIGIN: "*"
-    # Portlar kapalı (Internal)
     volumes:
       - minio-data:/data
     healthcheck:
@@ -62,34 +59,25 @@ services:
     environment:
       ENVIRONMENT: "production"
       LOG_LEVEL: "INFO"
-      
-      # DİKKAT: Bu değişkeni Coolify Env Vars'a eklemelisin
       BACKEND_API_ENDPOINT: "${API_URL}"
-
       DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/postgres"
       REDIS_URL: "redis://:redissecret@redis:6379"
-
       ENABLE_AWS_S3: "false"
       MINIO_ENDPOINT: "minio:9000"
       MINIO_ACCESS_KEY: "minioadmin"
       MINIO_SECRET_KEY: "minioadmin"
       MINIO_BUCKET: "voice-audio"
       MINIO_SECURE: "false"
-
       ENABLE_TRACING: "false"
       ENABLE_TELEMETRY: "${ENABLE_TELEMETRY:-true}"
       SENTRY_DSN: "https://3acdb63d5f1f70430953353b82de61e0@o4509486225096704.ingest.us.sentry.io/4510152922693632"
-
-      # Verimor Entegrasyonu
       SIP_HOST: "${SIP_HOST}"
-
       TURN_HOST: "${TURN_HOST:-}"
       TURN_USERNAME: "${TURN_USERNAME:-}"
       TURN_PASSWORD: "${TURN_PASSWORD:-}"
-
+    # DÜZELTME: Buradan aşağısı environment içinden çıkarıldı
     ports:
-      - "8090:8000"  # HTTP Erişimi (Dışarıya 8090)
-      # 👇 VERIMOR / SIP Portları 👇
+      - "8090:8000"
       - "5060:5060/udp"
       - "5060:5060/tcp"
       - "10000-10200:10000-10200/udp"
@@ -100,7 +88,6 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-    # Claude'un uyardığı SABIRLI Healthcheck:
     healthcheck:
       test:
         [
@@ -124,7 +111,6 @@ services:
   ui:
     image: ${REGISTRY:-dograhai}/dograh-ui:latest
     environment:
-      # Browser'ın API'ye ulaşacağı adres (Public URL)
       BACKEND_URL: "${API_URL}"
       NODE_ENV: "oss"
       ENABLE_TELEMETRY: "${ENABLE_TELEMETRY:-true}"
@@ -133,10 +119,11 @@ services:
       TURN_HOST: "${TURN_HOST:-}"
       TURN_USERNAME: "${TURN_USERNAME:-}"
       TURN_PASSWORD: "${TURN_PASSWORD:-}"
+    # DÜZELTME: Buradan aşağısı environment içinden çıkarıldı
     ports:
       - "3010:3010"
     depends_on:
-      - api # Sıkı bağımlılık kaldırıldı, daha hızlı açılır
+      - api
     healthcheck:
       test:
         [
