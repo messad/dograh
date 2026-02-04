@@ -127,10 +127,10 @@ services:
           "CMD-SHELL",
           'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:8000/api/v1/health'').read()"',
         ]
-      interval: 30s
+      interval: 10s
       timeout: 10s
-      retries: 3
-      start_period: 60s
+      retries: 12
+      start_period: 180s
     networks:
       - app-network
 
