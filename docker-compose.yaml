@@ -119,6 +119,7 @@ services:
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=letsencrypt"
       - "traefik.http.services.api.loadbalancer.server.port=8000"
+  
   ui:
     image: ${REGISTRY:-dograhai}/dograh-ui:latest
     environment:
@@ -153,6 +154,7 @@ services:
       - "traefik.http.routers.ui.entrypoints=websecure"
       - "traefik.http.routers.ui.tls.certresolver=letsencrypt"
       - "traefik.http.services.ui.loadbalancer.server.port=3010"
+
   coturn:
     image: coturn/coturn:4.6.3
     container_name: coturn
