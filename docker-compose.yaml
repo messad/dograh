@@ -109,7 +109,7 @@ services:
       TURN_PASSWORD: "${TURN_PASSWORD:-}"
 
     ports:
-      - "8000:8000"
+      - "8090:8000"
       # 👇 VERIMOR / SIP Portları (DIŞARIYA AÇIK) 👇
       - "5060:5060/udp"
       - "5060:5060/tcp"
