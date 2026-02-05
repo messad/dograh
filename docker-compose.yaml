@@ -1,28 +1,4 @@
 services:
-  postgres:
-    image: pgvector/pgvector:pg17
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-      # 👇 BU SATIR KRİTİK (Şifre kontrolünü devre dışı bırakır)
-      POSTGRES_HOST_AUTH_METHOD: trust
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    volumes:
-      # 👇 Temiz sayfa için ismi değiştirdim
-      - postgres_data_trust_mode:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 3s
-      timeout: 3s
-      retries: 10
-    networks:
-      - app-network
-
   redis:
     image: redis:7
     command: >
@@ -64,8 +40,8 @@ services:
       LOG_LEVEL: "INFO"
       BACKEND_API_ENDPOINT: "${API_URL}"
       
-      # 👇 URL güncellendi (?ssl=false eklendi)
-      DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/postgres?ssl=disable"
+      # 👇 YENİ DATABASE URL (Senin verdiğin internal adres + asyncpg ayarı)
+      DATABASE_URL: "postgresql+asyncpg://postgres:PMj6svWVUZS2PWXQYreZlVrtvjeyn2y6K602Rmr2wYAXoTXgWLMUK4Oc7A9HmCSC@b4oc4ksgg48o488gwogc0cso:5432/postgres?ssl=disable"
       
       REDIS_URL: "redis://:redissecret@redis:6379"
       ENABLE_AWS_S3: "false"
@@ -87,8 +63,7 @@ services:
       - "5060:5060/tcp"
       - "10000-10200:10000-10200/udp"
     depends_on:
-      postgres:
-        condition: service_healthy
+      # Postgres bağımlılığı kaldırıldı
       redis:
         condition: service_healthy
       minio:
@@ -175,8 +150,6 @@ services:
       ${TURN_HOST:+--external-ip=$TURN_HOST}
 
 volumes:
-  # 👇 YENİ VOLUME İSMİ
-  postgres_data_trust_mode:
   redis_data:
   minio-data:
     driver: local
