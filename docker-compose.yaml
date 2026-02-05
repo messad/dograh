@@ -5,13 +5,16 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+      # 👇 BU SATIR KRİTİK (Şifre kontrolünü devre dışı bırakır)
+      POSTGRES_HOST_AUTH_METHOD: trust
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
     volumes:
-      - postgres_data_fix:/var/lib/postgresql/data
+      # 👇 Temiz sayfa için ismi değiştirdim
+      - postgres_data_trust_mode:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 3s
@@ -60,7 +63,10 @@ services:
       ENVIRONMENT: "production"
       LOG_LEVEL: "INFO"
       BACKEND_API_ENDPOINT: "${API_URL}"
-      DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/postgres"
+      
+      # 👇 URL güncellendi (?ssl=false eklendi)
+      DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/postgres?ssl=false"
+      
       REDIS_URL: "redis://:redissecret@redis:6379"
       ENABLE_AWS_S3: "false"
       MINIO_ENDPOINT: "minio:9000"
@@ -75,7 +81,6 @@ services:
       TURN_HOST: "${TURN_HOST:-}"
       TURN_USERNAME: "${TURN_USERNAME:-}"
       TURN_PASSWORD: "${TURN_PASSWORD:-}"
-    # DÜZELTME: Buradan aşağısı environment içinden çıkarıldı
     ports:
       - "8090:8000"
       - "5060:5060/udp"
@@ -119,7 +124,6 @@ services:
       TURN_HOST: "${TURN_HOST:-}"
       TURN_USERNAME: "${TURN_USERNAME:-}"
       TURN_PASSWORD: "${TURN_PASSWORD:-}"
-    # DÜZELTME: Buradan aşağısı environment içinden çıkarıldı
     ports:
       - "3010:3010"
     depends_on:
@@ -171,7 +175,8 @@ services:
       ${TURN_HOST:+--external-ip=$TURN_HOST}
 
 volumes:
-  postgres_data_fix:
+  # 👇 YENİ VOLUME İSMİ
+  postgres_data_trust_mode:
   redis_data:
   minio-data:
     driver: local
