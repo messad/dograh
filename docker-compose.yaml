@@ -77,7 +77,7 @@ services:
   ui:
     image: ${REGISTRY:-dograhai}/dograh-ui:latest
     environment:
-      BACKEND_URL: "${API_URL}"
+      BACKEND_URL: "http://api:8000"
       NODE_ENV: "oss"
       ENABLE_TELEMETRY: "${ENABLE_TELEMETRY:-true}"
       POSTHOG_KEY: "phc_ItizB1dP6yv7ZYobbcqrpxTdbomDA8hJFSEmAMdYvIr"
