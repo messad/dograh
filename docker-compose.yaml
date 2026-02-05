@@ -65,7 +65,7 @@ services:
       BACKEND_API_ENDPOINT: "${API_URL}"
       
       # 👇 URL güncellendi (?ssl=false eklendi)
-      DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/postgres?ssl=false"
+      DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/postgres?ssl=disable"
       
       REDIS_URL: "redis://:redissecret@redis:6379"
       ENABLE_AWS_S3: "false"
