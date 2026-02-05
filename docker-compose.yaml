@@ -1,18 +1,4 @@
 services:
-  redis:
-    image: redis:7
-    command: >
-      --requirepass redissecret
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "-a", "redissecret", "ping"]
-      interval: 3s
-      timeout: 10s
-      retries: 10
-    networks:
-      - app-network
-
   minio:
     image: minio/minio
     container_name: minio
@@ -40,10 +26,12 @@ services:
       LOG_LEVEL: "INFO"
       BACKEND_API_ENDPOINT: "${API_URL}"
       
-      # 👇 YENİ DATABASE URL (Senin verdiğin internal adres + asyncpg ayarı)
+      # Database URL (Harici Postgres - Aynen kalıyor)
       DATABASE_URL: "postgresql+asyncpg://postgres:PMj6svWVUZS2PWXQYreZlVrtvjeyn2y6K602Rmr2wYAXoTXgWLMUK4Oc7A9HmCSC@b4oc4ksgg48o488gwogc0cso:5432/postgres?ssl=disable"
       
-      REDIS_URL: "redis://:redissecret@redis:6379"
+      # 👇 GÜNCELLENDİ (Senin verdiğin mevcut Redis URL'i)
+      REDIS_URL: "redis://default:b48mxd7UZwTPr45JX2O3ROfjifkr1BGH70fLdHf0u2m2scXUJVKSlCsCz8l7WeS0@usw0kwog4k84gcgscc44g4sk:6379/0"
+      
       ENABLE_AWS_S3: "false"
       MINIO_ENDPOINT: "minio:9000"
       MINIO_ACCESS_KEY: "minioadmin"
@@ -63,9 +51,7 @@ services:
       - "5060:5060/tcp"
       - "10000-10200:10000-10200/udp"
     depends_on:
-      # Postgres bağımlılığı kaldırıldı
-      redis:
-        condition: service_healthy
+      # Redis bağımlılığı kaldırıldı (Dışarıdan geliyor)
       minio:
         condition: service_healthy
     healthcheck:
@@ -150,7 +136,7 @@ services:
       ${TURN_HOST:+--external-ip=$TURN_HOST}
 
 volumes:
-  redis_data:
+  # Redis volume kaldırıldı
   minio-data:
     driver: local
   shared-tmp:
