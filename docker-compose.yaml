@@ -47,8 +47,8 @@ services:
       TURN_PASSWORD: "${TURN_PASSWORD:-}"
     ports:
       - "8090:8000"
-      - "5060:5060/udp"
-      - "5060:5060/tcp"
+      - "5090:5060/udp"
+      - "5090:5060/tcp"
       - "10000-10200:10000-10200/udp"
     depends_on:
       # Redis bağımlılığı kaldırıldı (Dışarıdan geliyor)
