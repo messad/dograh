@@ -21,7 +21,6 @@ services:
     image: ${REGISTRY:-dograhai}/dograh-api:latest
     volumes:
       - shared-tmp:/tmp
-      - /root/vobiz_provider.py:/app/api/services/telephony/providers/vobiz_provider.py
     environment:
       ENVIRONMENT: "production"
       LOG_LEVEL: "INFO"
