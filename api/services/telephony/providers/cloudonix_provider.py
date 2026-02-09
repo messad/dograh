@@ -109,9 +109,9 @@ class CloudonixProvider(TelephonyProvider):
         # TODO: Cloudonix status callbacks are spammy, so commenting it out. Can send it to
         # some persistent logging system instead of transcational database.
         # Add status callback if workflow_run_id provided
-        # if workflow_run_id:
-        #     callback_url = f"{backend_endpoint}/api/v1/telephony/cloudonix/status-callback/{workflow_run_id}"
-        #     data["callback"] = callback_url
+        if workflow_run_id:
+            callback_url = f"{backend_endpoint}/api/v1/telephony/cloudonix/status-callback/{workflow_run_id}"
+            data["callback"] = callback_url
 
         # Merge any additional kwargs
         data.update(kwargs)
