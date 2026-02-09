@@ -21,15 +21,16 @@ services:
     image: ${REGISTRY:-dograhai}/dograh-api:latest
     volumes:
       - shared-tmp:/tmp
+      # ❌ SİLİNDİ: Kod artık imajın içinden (GitHub güncel halinden) gelecek.
     environment:
       ENVIRONMENT: "production"
       LOG_LEVEL: "INFO"
       BACKEND_API_ENDPOINT: "${API_URL}"
       
-      # Database URL (Harici Postgres - Aynen kalıyor)
+      # Database URL
       DATABASE_URL: "postgresql+asyncpg://postgres:PMj6svWVUZS2PWXQYreZlVrtvjeyn2y6K602Rmr2wYAXoTXgWLMUK4Oc7A9HmCSC@b4oc4ksgg48o488gwogc0cso:5432/postgres?ssl=disable"
       
-      # 👇 GÜNCELLENDİ (Senin verdiğin mevcut Redis URL'i)
+      # Redis URL
       REDIS_URL: "redis://default:b48mxd7UZwTPr45JX2O3ROfjifkr1BGH70fLdHf0u2m2scXUJVKSlCsCz8l7WeS0@usw0kwog4k84gcgscc44g4sk:6379/0"
       
       ENABLE_AWS_S3: "false"
@@ -47,11 +48,11 @@ services:
       TURN_PASSWORD: "${TURN_PASSWORD:-}"
     ports:
       - "8090:8000"
-      - "5090:5060/udp"
-      - "5090:5060/tcp"
+      # 👇 Livekit olmadığı için Cloudonix için standart SIP portu
+      - "5060:5060/udp"
+      - "5060:5060/tcp"
       - "10000-10200:10000-10200/udp"
     depends_on:
-      # Redis bağımlılığı kaldırıldı (Dışarıdan geliyor)
       minio:
         condition: service_healthy
     healthcheck:
@@ -126,7 +127,6 @@ services:
       ${TURN_HOST:+--external-ip=$TURN_HOST}
 
 volumes:
-  # Redis volume kaldırıldı
   minio-data:
     driver: local
   shared-tmp:
