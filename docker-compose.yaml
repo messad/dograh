@@ -18,10 +18,12 @@ services:
       - app-network
 
   api:
-    image: ${REGISTRY:-dograhai}/dograh-api:latest
+    # image: ${REGISTRY:-dograhai}/dograh-api:latest
+    build:
+      context: .
+      dockerfile: api/Dockerfile
     volumes:
       - shared-tmp:/tmp
-      # ❌ SİLİNDİ: Kod artık imajın içinden (GitHub güncel halinden) gelecek.
     environment:
       ENVIRONMENT: "production"
       LOG_LEVEL: "INFO"
