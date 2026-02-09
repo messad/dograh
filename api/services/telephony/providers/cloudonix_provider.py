@@ -136,15 +136,22 @@ class CloudonixProvider(TelephonyProvider):
              # If it looks like a domain, prepend wss://
              wss_backend_endpoint = f"wss://{wss_backend_endpoint}"
 
+        # Construct single-line CXML with single quotes to avoid JSON parsing issues on Cloudonix side
+        # We use single quotes for attributes: url='...' instead of url="..."
+        stream_url = f"{wss_backend_endpoint}/api/v1/telephony/ws/{workflow_id}/{user_id}/{workflow_run_id}"
+        cxml_content = (
+            f"<?xml version='1.0' encoding='UTF-8'?>"
+            f"<Response>"
+            f"<Connect>"
+            f"<Stream url='{stream_url}'></Stream>"
+            f"</Connect>"
+            f"<Pause length='40'/>"
+            f"</Response>"
+        )
+
         data: Dict[str, Any] = {
             "destination": to_number,
-            "cxml": f"""<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-    <Connect>
-        <Stream url="{wss_backend_endpoint}/api/v1/telephony/ws/{workflow_id}/{user_id}/{workflow_run_id}"></Stream>
-    </Connect>
-    <Pause length="40"/>
-</Response>""",
+            "cxml": cxml_content,
             "caller-id": from_number,  # Required field
         }
 
@@ -687,13 +694,16 @@ class CloudonixProvider(TelephonyProvider):
         from fastapi import Response
 
         # Generate CXML response (same format as outbound calls)
-        cxml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-    <Connect>
-        <Stream url="{websocket_url}"></Stream>
-    </Connect>
-    <Pause length="40"/>
-</Response>"""
+        # Use single quotes for attributes to ensure clean parsing on Cloudonix side
+        cxml_content = (
+            f"<?xml version='1.0' encoding='UTF-8'?>"
+            f"<Response>"
+            f"<Connect>"
+            f"<Stream url='{websocket_url}'></Stream>"
+            f"</Connect>"
+            f"<Pause length='40'/>"
+            f"</Response>"
+        )
 
         logger.info(f"Cloudonix inbound CXML response content: {cxml_content}")
 
